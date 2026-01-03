@@ -1,346 +1,204 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Photo Frame Editor</title>
-
-<style>
-:root {
-    --bg: #0f172a;
-    --bg-soft: #020617;
-    --card: #020617;
-    --border: #1e293b;
-    --text: #e5e7eb;
-    --muted: #94a3b8;
-    --primary: #6366f1;
-    --primary-hover: #4f46e5;
-}
-
-.light {
-    --bg: #f1f5f9;
-    --bg-soft: #e2e8f0;
-    --card: #ffffff;
-    --border: #e5e7eb;
-    --text: #020617;
-    --muted: #64748b;
-}
-
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    min-height: 100vh;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    background: radial-gradient(circle at top, var(--bg), var(--bg-soft));
-    color: var(--text);
-}
-
-/* HEADER */
-header {
-    max-width: 1200px;
-    margin: auto;
-    padding: 40px 20px 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-header h1 {
-    margin: 0;
-    font-size: 28px;
-}
-
-header p {
-    margin: 6px 0 0;
-    font-size: 14px;
-    color: var(--muted);
-}
-
-.toggle {
-    background: var(--card);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 10px 14px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-/* MAIN */
-.container {
-    max-width: 1200px;
-    margin: auto;
-    padding: 20px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 24px;
-}
-
-.card {
-    background: var(--card);
-    border-radius: 18px;
-    padding: 20px;
-    border: 1px solid var(--border);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-}
-
-.card h2 {
-    margin-top: 0;
-    font-size: 18px;
-}
-
-/* INPUT */
-input[type="file"] {
-    width: 100%;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px dashed var(--border);
-    background: transparent;
-    color: var(--text);
-    cursor: pointer;
-}
-
-/* IMAGE PREVIEW */
-img {
-    margin-top: 14px;
-    width: 100%;
-    border-radius: 14px;
-    border: 1px solid var(--border);
-}
-
-/* CANVAS */
-canvas {
-    width: 100%;
-    border-radius: 16px;
-    border: 1px solid var(--border);
-    background: #000;
-    cursor: grab;
-}
-
-/* BUTTONS */
-button {
-    width: 100%;
-    margin-top: 12px;
-    padding: 12px;
-    border-radius: 14px;
-    border: none;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-#saveButton {
-    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
-    color: #fff;
-}
-
-#resetButton {
-    background: transparent;
-    color: var(--muted);
-    border: 1px solid var(--border);
-}
-
-.hidden {
-    display: none;
-}
-
-.recommendation {
-    font-size: 13px;
-    color: var(--muted);
-    margin-bottom: 10px;
-}
-
-/* FOOTER */
-footer {
-    text-align: center;
-    padding: 30px 20px;
-    color: var(--muted);
-    font-size: 14px;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editor Bingkai Foto PNG Transparan</title>
+  <style>
+    body{
+      font-family: Arial, sans-serif;
+      background:#111;
+      color:#fff;
+      margin:0;
+      padding:20px;
+    }
+    h1{font-size:22px;}
+    .container{
+      display:grid;
+      grid-template-columns: 300px 1fr;
+      gap:20px;
+    }
+    .panel{
+      background:#1c1c1c;
+      border-radius:10px;
+      padding:15px;
+    }
+    label{display:block;margin-top:10px;font-size:14px;}
+    input[type=file]{width:100%;margin-top:5px;}
+    button{
+      margin-top:15px;
+      width:100%;
+      padding:10px;
+      border:none;
+      border-radius:6px;
+      background:#4caf50;
+      color:#000;
+      font-weight:bold;
+      cursor:pointer;
+    }
+    canvas{
+      width:100%;
+      background: repeating-conic-gradient(#555 0% 25%, #444 0% 50%)
+        50% / 20px 20px;
+      border-radius:10px;
+    }
+  </style>
 </head>
-
 <body>
 
-<header>
-    <div>
-        <h1>Photo Frame Editor</h1>
-        <p>Masukkan foto ke dalam bingkai secara presisi</p>
-    </div>
-    <button class="toggle" id="modeToggle">🌙 Dark</button>
-</header>
+<h1>🖼️ Editor Bingkai Foto PNG Transparan</h1>
+<p>Tujuan: membuat bingkai foto dengan bagian tengah transparan (tempat drop foto).</p>
 
 <div class="container">
+  <!-- PANEL KONTROL -->
+  <div class="panel">
+    <label>Upload Bingkai Foto</label>
+    <input type="file" id="frameInput" accept="image/*" />
 
-    <div class="card">
-        <h2>Upload Foto</h2>
-        <input type="file" id="photoInput" accept=".jpg,.jpeg,.png">
-        <img id="photoPreview" class="hidden">
-    </div>
+    <label>Mode Lubang</label>
+    <select id="mode">
+      <option value="manual">Manual (geser mouse)</option>
+      <option value="center">Otomatis Tengah (Simple)</option>
+      <option value="auto">Auto Detect Warna Tengah (Profesional)</option>
+    </select>
 
-    <div class="card">
-        <h2>Upload Bingkai</h2>
-        <p class="recommendation">Disarankan PNG transparan</p>
-        <input type="file" id="frameInput" accept=".jpg,.jpeg,.png">
-        <img id="framePreview" class="hidden">
-    </div>
+    <label>Bentuk Lubang</label>
+    <select id="shape">
+      <option value="rect">Persegi</option>
+      <option value="circle">Lingkaran</option>
+    </select>
 
-    <div class="card">
-        <h2>Preview Hasil</h2>
-        <canvas id="resultCanvas" class="hidden"></canvas>
-        <button id="saveButton" class="hidden">Simpan</button>
-        <button id="resetButton">Reset</button>
-    </div>
+    <button id="downloadBtn">Download PNG Transparan</button>
+  </div>
 
+  <!-- CANVAS -->
+  <div class="panel">
+    <canvas id="canvas"></canvas>
+  </div>
 </div>
 
-<footer>
-    Creative by Mulya.id
-</footer>
-
 <script>
-const body = document.body;
-const toggle = document.getElementById('modeToggle');
-
-toggle.onclick = () => {
-    body.classList.toggle('light');
-    toggle.textContent = body.classList.contains('light') ? '☀️ Light' : '🌙 Dark';
-};
-
-const photoInput = document.getElementById('photoInput');
-const frameInput = document.getElementById('frameInput');
-const photoPreview = document.getElementById('photoPreview');
-const framePreview = document.getElementById('framePreview');
-const canvas = document.getElementById('resultCanvas');
+const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const saveBtn = document.getElementById('saveButton');
-const resetBtn = document.getElementById('resetButton');
+const frameInput = document.getElementById('frameInput');
+const modeSelect = document.getElementById('mode');
+const shapeSelect = document.getElementById('shape');
+const downloadBtn = document.getElementById('downloadBtn');
 
-let photo, frame, hole;
-let scale = 1;
-let x = 0, y = 0;
-let dragging = false;
-let offsetX = 0, offsetY = 0;
+let frameImage = new Image();
 
-function loadImage(input, cb, preview) {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-        const img = new Image();
-        img.onload = () => cb(img);
-        img.src = e.target.result;
-        preview.src = e.target.result;
-        preview.classList.remove('hidden');
-    };
-    reader.readAsDataURL(file);
-}
+frameInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    frameImage.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+});
 
-photoInput.onchange = () => loadImage(photoInput, img => { photo = img; init(); }, photoPreview);
-frameInput.onchange = () => loadImage(frameInput, img => { frame = img; detectHole(); init(); }, framePreview);
+frameImage.onload = () => {
+  canvas.width = frameImage.width;
+  canvas.height = frameImage.height;
+  redraw();
+};
 
-function detectHole() {
-    if (!frame) return;
-    // Gambar frame ke canvas sementara untuk deteksi
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = frame.width;
-    tempCanvas.height = frame.height;
-    const tempCtx = tempCanvas.getContext('2d');
-    tempCtx.drawImage(frame, 0, 0);
-    
-    // Fungsi autoDetectHole seperti sebelumnya
-    const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-    const data = imgData.data;
-    const visited = new Array(tempCanvas.width * tempCanvas.height).fill(false);
-    const cx = Math.floor(tempCanvas.width / 2);
-    const cy = Math.floor(tempCanvas.height / 2);
-    const startIdx = (cy * tempCanvas.width + cx) * 4;
-    const baseColor = [data[startIdx], data[startIdx+1], data[startIdx+2], data[startIdx+3]];
-    const tol = 30; // Toleransi warna
+modeSelect.onchange = redraw;
+shapeSelect.onchange = redraw;
 
-    let minX = tempCanvas.width, maxX = 0, minY = tempCanvas.height, maxY = 0;
-    const stack = [[cx, cy]];
+let hole = { x:0, y:0, w:300, h:300, dragging:false };
 
-    while (stack.length > 0) {
-        const [x, y] = stack.pop();
-        const idx = (y * tempCanvas.width + x) * 4;
-        if (visited[y * tempCanvas.width + x] || 
-            Math.abs(data[idx] - baseColor[0]) > tol || 
-            Math.abs(data[idx+1] - baseColor[1]) > tol || 
-            Math.abs(data[idx+2] - baseColor[2]) > tol || 
-            Math.abs(data[idx+3] - baseColor[3]) > tol) {
-            continue;
-        }
-        visited[y * tempCanvas.width + x] = true;
-        minX = Math.min(minX, x);
-        maxX = Math.max(maxX, x);
-        minY = Math.min(minY, y);
-        maxY = Math.max(maxY, y);
+function autoDetectHole(){
+  // Menggunakan flood fill dari titik tengah untuk mendeteksi area lubang yang terhubung
+  // Asumsikan area lubang adalah area dengan warna seragam (termasuk putih, arsiran, dll.) yang terhubung dari tengah
+  const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
+  const data = imgData.data;
+  const visited = new Array(canvas.width * canvas.height).fill(false);
+  const cx = Math.floor(canvas.width / 2);
+  const cy = Math.floor(canvas.height / 2);
+  const startIdx = (cy * canvas.width + cx) * 4;
+  const baseColor = [data[startIdx], data[startIdx+1], data[startIdx+2], data[startIdx+3]];
+  const tol = 30; // Toleransi warna, bisa disesuaikan
 
-        // Tambahkan tetangga
-        if (x > 0) stack.push([x-1, y]);
-        if (x < tempCanvas.width - 1) stack.push([x+1, y]);
-        if (y > 0) stack.push([x, y-1]);
-        if (y < tempCanvas.height - 1) stack.push([x, y+1]);
+  let minX = canvas.width, maxX = 0, minY = canvas.height, maxY = 0;
+  const stack = [[cx, cy]];
+
+  while (stack.length > 0) {
+    const [x, y] = stack.pop();
+    const idx = (y * canvas.width + x) * 4;
+    if (visited[y * canvas.width + x] || 
+        Math.abs(data[idx] - baseColor[0]) > tol || 
+        Math.abs(data[idx+1] - baseColor[1]) > tol || 
+        Math.abs(data[idx+2] - baseColor[2]) > tol || 
+        Math.abs(data[idx+3] - baseColor[3]) > tol) {
+      continue;
     }
+    visited[y * canvas.width + x] = true;
+    minX = Math.min(minX, x);
+    maxX = Math.max(maxX, x);
+    minY = Math.min(minY, y);
+    maxY = Math.max(maxY, y);
 
-    hole = {x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1};
+    // Tambahkan tetangga
+    if (x > 0) stack.push([x-1, y]);
+    if (x < canvas.width - 1) stack.push([x+1, y]);
+    if (y > 0) stack.push([x, y-1]);
+    if (y < canvas.height - 1) stack.push([x, y+1]);
+  }
+
+  return {x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1};
 }
 
-function init() {
-    if (!photo || !frame || !hole) return;
-    canvas.width = frame.width;
-    canvas.height = frame.height;
+function redraw(){
+  if(!frameImage.src) return;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.drawImage(frameImage,0,0);
 
-    // Sesuaikan skala dan posisi foto dengan lubang
-    scale = Math.min(hole.w / photo.width, hole.h / photo.height);
-    x = hole.x + (hole.w - photo.width * scale) / 2;
-    y = hole.y + (hole.h - photo.height * scale) / 2;
+  let x,y,w,h;
+  if(modeSelect.value === 'center'){
+    w = canvas.width * 0.6;
+    h = canvas.height * 0.6;
+    x = (canvas.width - w)/2;
+    y = (canvas.height - h)/2;
+  }else if(modeSelect.value === 'auto'){
+    ({x,y,w,h} = autoDetectHole());
+  }else{
+    ({x,y,w,h} = hole);
+  }
 
-    canvas.classList.remove('hidden');
-    saveBtn.classList.remove('hidden');
-    draw();
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.beginPath();
+  if (shapeSelect.value === 'circle') {
+    const radius = Math.min(w, h) / 2;
+    ctx.arc(x + w/2, y + h/2, radius, 0, 2 * Math.PI);
+  } else {
+    ctx.rect(x, y, w, h);
+  }
+  ctx.fill();
+  ctx.restore();
 }
 
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(photo, x, y, photo.width * scale, photo.height * scale);
-    ctx.drawImage(frame, 0, 0);
-}
+canvas.addEventListener('mousedown', e=>{
+  if(modeSelect.value!=='manual') return;
+  hole.dragging = true;
+  hole.x = e.offsetX; hole.y = e.offsetY;
+  hole.w = 0; hole.h = 0;
+});
+canvas.addEventListener('mousemove', e=>{
+  if(!hole.dragging) return;
+  hole.w = e.offsetX - hole.x;
+  hole.h = e.offsetY - hole.y;
+  redraw();
+});
+canvas.addEventListener('mouseup', ()=> hole.dragging=false);
 
-canvas.onmousedown = e => {
-    dragging = true;
-    offsetX = e.offsetX - x;
-    offsetY = e.offsetY - y;
-};
-
-canvas.onmousemove = e => {
-    if (!dragging) return;
-    x = e.offsetX - offsetX;
-    y = e.offsetY - offsetY;
-    draw();
-};
-
-window.onmouseup = () => dragging = false;
-
-saveBtn.onclick = () => {
-    const a = document.createElement('a');
-    a.download = 'photo-frame.png';
-    a.href = canvas.toDataURL('image/png');
-    a.click();
-};
-
-resetBtn.onclick = () => {
-    photo = frame = hole = null;
-    photoInput.value = '';
-    frameInput.value = '';
-    photoPreview.classList.add('hidden');
-    framePreview.classList.add('hidden');
-    canvas.classList.add('hidden');
-    saveBtn.classList.add('hidden');
+// DOWNLOAD PNG TRANSPARAN
+downloadBtn.onclick = () => {
+  const link = document.createElement('a');
+  link.download = 'bingkai_transparan.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
 };
 </script>
 
