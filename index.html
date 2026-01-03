@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo Frame Editor</title>
+
+<style>
+:root {
+    --bg: #0f172a;
+    --bg-soft: #020617;
+    --card: #020617;
+    --border: #1e293b;
+    --text: #e5e7eb;
+    --muted: #94a3b8;
+    --primary: #6366f1;
+    --primary-hover: #4f46e5;
+}
+
+.light {
+    --bg: #f1f5f9;
+    --bg-soft: #e2e8f0;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #020617;
+    --muted: #64748b;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: radial-gradient(circle at top, var(--bg), var(--bg-soft));
+    color: var(--text);
+}
+
+/* HEADER */
+header {
+    max-width: 1200px;
+    margin: auto;
+    padding: 40px 20px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 28px;
+}
+
+header p {
+    margin: 6px 0 0;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.toggle {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* MAIN */
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+.card h2 {
+    margin-top: 0;
+    font-size: 18px;
+}
+
+/* INPUT */
+input[type="file"] {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px dashed var(--border);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+}
+
+/* IMAGE PREVIEW */
+img {
+    margin-top: 14px;
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+}
+
+/* CANVAS */
+canvas {
+    width: 100%;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: #000;
+    cursor: grab;
+}
+
+/* BUTTONS */
+button {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 14px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#saveButton {
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+    color: #fff;
+}
+
+#resetButton {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+}
+
+.hidden {
+    display: none;
+}
+
+.recommendation {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 10px;
+}
+
+/* FOOTER */
+footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--muted);
+    font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div>
+        <h1>Photo Frame Editor</h1>
+        <p>Masukkan foto ke dalam bingkai secara presisi</p>
+    </div>
+    <button class="toggle" id="modeToggle">🌙 Dark</button>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Upload Foto</h2>
+        <input type="file" id="photoInput" accept=".jpg,.jpeg,.png">
+        <img id="photoPreview" class="hidden">
+    </div>
+
+    <div class="card">
+        <h2>Upload Bingkai</h2>
+        <p class="recommendation">Disarankan PNG transparan</p>
+        <input type="file" id="frameInput" accept=".jpg,.jpeg,.png">
+        <img id="framePreview" class="hidden">
+    </div>
+
+    <div class="card">
+        <h2>Preview Hasil</h2>
+        <canvas id="resultCanvas" class="hidden"></canvas>
+        <button id="saveButton" class="hidden">Simpan</button>
+        <button id="resetButton">Reset</button>
+    </div>
+
+</div>
+
+<footer>
+    Creative by Mulya.id
+</footer>
+
+<script>
+const body = document.body;
+const toggle = document.getElementById('modeToggle');
+
+toggle.onclick = () => {
+    body.classList.toggle('light');
+    toggle.textContent = body.classList.contains('light') ? '☀️ Light' : '🌙 Dark';
+};
+
+const photoInput = document.getElementById('photoInput');
+const frameInput = document.getElementById('frameInput');
+const photoPreview = document.getElementById('photoPreview');
+const framePreview = document.getElementById('framePreview');
+const canvas = document.getElementById('resultCanvas');
+const ctx = canvas.getContext('2d');
+const saveBtn = document.getElementById('saveButton');
+const resetBtn = document.getElementById('resetButton');
+
+let photo, frame, hole;
+let scale = 1;
+let x = 0, y = 0;
+let dragging = false;
+let offsetX = 0, offsetY = 0;
+
+function loadImage(input, cb, preview) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        const img = new Image();
+        img.onload = () => cb(img);
+        img.src = e.target.result;
+        preview.src = e.target.result;
+        preview.classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+}
+
+photoInput.onchange = () => loadImage(photoInput, img => { photo = img; init(); }, photoPreview);
+frameInput.onchange = () => loadImage(frameInput, img => { frame = img; detectHole(); init(); }, framePreview);
+
+function detectHole() {
+    if (!frame) return;
+    // Gambar frame ke canvas sementara untuk deteksi
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = frame.width;
+    tempCanvas.height = frame.height;
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCtx.drawImage(frame, 0, 0);
+    
+    // Fungsi autoDetectHole seperti sebelumnya
+    const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+    const data = imgData.data;
+    const visited = new Array(tempCanvas.width * tempCanvas.height).fill(false);
+    const cx = Math.floor(tempCanvas.width / 2);
+    const cy = Math.floor(tempCanvas.height / 2);
+    const startIdx = (cy * tempCanvas.width + cx) * 4;
+    const baseColor = [data[startIdx], data[startIdx+1], data[startIdx+2], data[startIdx+3]];
+    const tol = 30; // Toleransi warna
+
+    let minX = tempCanvas.width, maxX = 0, minY = tempCanvas.height, maxY = 0;
+    const stack = [[cx, cy]];
+
+    while (stack.length > 0) {
+        const [x, y] = stack.pop();
+        const idx = (y * tempCanvas.width + x) * 4;
+        if (visited[y * tempCanvas.width + x] || 
+            Math.abs(data[idx] - baseColor[0]) > tol || 
+            Math.abs(data[idx+1] - baseColor[1]) > tol || 
+            Math.abs(data[idx+2] - baseColor[2]) > tol || 
+            Math.abs(data[idx+3] - baseColor[3]) > tol) {
+            continue;
+        }
+        visited[y * tempCanvas.width + x] = true;
+        minX = Math.min(minX, x);
+        maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y);
+        maxY = Math.max(maxY, y);
+
+        // Tambahkan tetangga
+        if (x > 0) stack.push([x-1, y]);
+        if (x < tempCanvas.width - 1) stack.push([x+1, y]);
+        if (y > 0) stack.push([x, y-1]);
+        if (y < tempCanvas.height - 1) stack.push([x, y+1]);
+    }
+
+    hole = {x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1};
+}
+
+function init() {
+    if (!photo || !frame || !hole) return;
+    canvas.width = frame.width;
+    canvas.height = frame.height;
+
+    // Sesuaikan skala dan posisi foto dengan lubang
+    scale = Math.min(hole.w / photo.width, hole.h / photo.height);
+    x = hole.x + (hole.w - photo.width * scale) / 2;
+    y = hole.y + (hole.h - photo.height * scale) / 2;
+
+    canvas.classList.remove('hidden');
+    saveBtn.classList.remove('hidden');
+    draw();
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(photo, x, y, photo.width * scale, photo.height * scale);
+    ctx.drawImage(frame, 0, 0);
+}
+
+canvas.onmousedown = e => {
+    dragging = true;
+    offsetX = e.offsetX - x;
+    offsetY = e.offsetY - y;
+};
+
+canvas.onmousemove = e => {
+    if (!dragging) return;
+    x = e.offsetX - offsetX;
+    y = e.offsetY - offsetY;
+    draw();
+};
+
+window.onmouseup = () => dragging = false;
+
+saveBtn.onclick = () => {
+    const a = document.createElement('a');
+    a.download = 'photo-frame.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+};
+
+resetBtn.onclick = () => {
+    photo = frame = hole = null;
+    photoInput.value = '';
+    frameInput.value = '';
+    photoPreview.classList.add('hidden');
+    framePreview.classList.add('hidden');
+    canvas.classList.add('hidden');
+    saveBtn.classList.add('hidden');
+};
+</script>
+
+</body>
+</html>
